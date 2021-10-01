@@ -68,7 +68,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	)
 	def script_toggle(self, gesture):
 		try:
-			if len(secciones[self.y]) > 5:
+			if len(secciones[3]) > 5:
 				if self.switch == False:
 					self.switch = True
 					message("activado")
