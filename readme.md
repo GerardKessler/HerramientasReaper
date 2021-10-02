@@ -9,10 +9,13 @@ Su uso es muy sencillo; al activar el complemento, se añaden una serie de atajo
 * Descargas
 * AudioTools
 * AudioZ
+* PluginTorrent
+* pro-vst
 
 Para moverse entre secciones hay que utilizar las flechas derecha e izquierda, y para navegar entre los ítems de la sección enfocada, con las flechas arriba y abajo.  
-En la sección tutoriales se encuentran los artículos publicados en Reaper y otras yerbas de esa misma sección.
-En descargas, los instaladores de las diferentes herramientas. Y en AudioTools como en AudioZ, las publicaciones de su página principal.
+En la sección tutoriales se encuentran los artículos publicados en Reaper y otras yerbas de esa misma sección.  
+En descargas, los links directos a los archivos desde sus  páginas oficiales.  
+El resto de secciones pertenecen a páginas con publicaciones referidas a instrumentos virtuales, plug-ins, y herramientas similares.
 Al pulsar intro sobre cualquier item, debería abrirse la publicación en el navegador por defecto. Y en el caso de los instaladores, debería comenzar su descarga.
 
 ## Atajos del complemento:

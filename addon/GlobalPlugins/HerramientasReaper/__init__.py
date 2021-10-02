@@ -23,8 +23,10 @@ def scrap(site):
 		html = request.urlopen(contenido)
 		datos = html.read().decode('utf-8')
 		bs = BeautifulSoup(datos, 'html.parser')
-		if site == "https://audiotools.in/" or site == "https://audioz.download/":
+		if site == "https://audiotools.in/" or site == "https://audioz.download/" or site == "https://plugintorrent.com/":
 			return bs.find_all('h2')
+		elif site == "http://pro-vst.org/":
+			return bs.find_all('h1')
 		else:
 			return bs.find_all('a', {'class': 'addon'})
 	except:
@@ -46,17 +48,32 @@ def audiotools(time):
 	audiotools = scrap("https://audiotools.in/")
 
 def audioz(time):
-	global secciones, audioz
+	global audioz
 	sleep(time)
 	audioz = scrap("https://audioz.download/")
-	secciones = [tutoriales, descargas, audiotools, audioz]
+
+def plugintorrent(time):
+	global plugintorrent
+	sleep(time)
+	plugintorrent = scrap("https://plugintorrent.com/")
+	
+def provst(time):
+	global secciones, provst
+	sleep(time)
+	provst = scrap("http://pro-vst.org/")
+	provst.pop(0)
+	secciones = [tutoriales, descargas, audiotools, audioz, plugintorrent, provst]
 
 Thread(target=tutoriales, args=(5,), daemon= True).start()
 Thread(target=descargas, args=(5,), daemon= True).start()
 Thread(target=audiotools, args=(5,), daemon= True).start()
 Thread(target=audioz, args=(5,), daemon= True).start()
+Thread(target=plugintorrent, args=(6,), daemon= True).start()
+Thread(target=provst, args=(6,), daemon= True).start()
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
+
+	sections = ["Tutoriales", "Descargas", "AudioTools", "AudioZ", "PluginTorrent", "pro_vst"]
 	x = -1
 	y=0
 	switch = False
@@ -84,48 +101,52 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_nextItem(self, gesture):
 		self.x = self.x + 1
 		if self.x < len(secciones[self.y]):
-			message(secciones[self.y][self.x].string)
+			if self.y == 4:
+				item = secciones[self.y][self.x]
+				message(item.a["title"])
+			else:
+				message(secciones[self.y][self.x].string)
 		else:
 			self.x = 0
-			message(secciones[self.y][self.x].string)
+			if self.y == 4:
+				item = secciones[self.y][self.x]
+				message(item.a["title"])
+			else:
+				message(secciones[self.y][self.x].string)
 
 	def script_previousItem(self, gesture):
 		self.x = self.x - 1
 		if self.x >= 0:
-			message(secciones[self.y][self.x].string)
+			if self.y == 4:
+				item = secciones[self.y][self.x]
+				message(item.a["title"])
+			else:
+				message(secciones[self.y][self.x].string)
 		else:
 			self.x = len(secciones[self.y]) - 1
-			message(secciones[self.y][self.x].string)
+			if self.y == 4:
+				item = secciones[self.y][self.x]
+				message(item.a["title"])
+			else:
+				message(secciones[self.y][self.x].string)
 
 	def script_nextSection(self, gesture):
 		self.x = -1
-		if self.y == 0:
-			self.y = 1
-			message("Descargas")
-		elif self.y == 1:
-			self.y = 2
-			message("AudioTools")
-		elif self.y == 2:
-			self.y = 3
-			message("AudioZ")
-		elif self.y == 3:
+		self.y = self.y + 1
+		if self.y < len(self.sections):
+			message(self.sections[self.y])
+		else:
 			self.y = 0
-			message("Tutoriales")
+			message(self.sections[self.y])
 
 	def script_previousSection(self, gesture):
 		self.x = -1
-		if self.y == 3:
-			self.y = 2
-			message("AudioTools")
-		elif self.y == 2:
-			self.y = 1
-			message("descargas")
-		elif self.y == 1:
-			self.y = 0
-			message("tutoriales")
-		elif self.y == 0:
-			self.y = 3
-			message("AudioZ")
+		self.y = self.y - 1
+		if self.y >= 0:
+			message(self.sections[self.y])
+		else:
+			self.y = len(self.sections) - 1
+			message(self.sections[self.y])
 
 	def script_open(self, gesture):
 		item = secciones[self.y][self.x]
@@ -134,18 +155,24 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		elif self.y == 1:
 			webbrowser.open(item['href'])
 		elif self.y == 2:
-			item = secciones[self.y][self.x]
 			webbrowser.open(item.a['href'])
 		elif self.y == 3:
-			item = secciones[self.y][self.x]
 			webbrowser.open(item.parent['href'])
+		elif self.y == 4:
+			webbrowser.open(item.a["href"])
+		elif self.y == 5:
+			webbrowser.open(item.parent.a["href"])
 		self.switch = False
 		self.clearGestureBindings()
 		self.bindGestures(self.__gestures)
 
 	def script_firstItem(self, gesture):
 		self.x = 0
-		message(secciones[self.y][self.x].string)
+		if self.y == 4:
+			item = secciones[self.y][self.x]
+			message(item.a["title"])
+		else:
+			message(secciones[self.y][self.x].string)
 
 	def script_positionAnnounce(self, gesture):
 		message(f"{self.x+1} de {len(secciones[self.y])}")
