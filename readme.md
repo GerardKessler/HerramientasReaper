@@ -3,7 +3,7 @@
 Este complemento fue creado para acceder de una forma sencilla a los artículos del sitio [http://ReaperYOtrasYerbas.com], así como para descargar los archivos de instalación de Reaper, Sws, osara, y otras herramientas.
 
 ## Instrucciones:
-Su uso es muy sencillo; al activar el complemento, se añaden una serie de atajos de teclado con los que se puede interactuar con la interfaz virtual para acceder a las 3 secciones disponibles, a saber;
+Su uso es muy sencillo; al activar el complemento, se añaden una serie de atajos de teclado con los que se puede interactuar con la interfaz virtual para acceder a las  secciones disponibles, a saber;
 
 * Tutoriales
 * Descargas
@@ -30,4 +30,4 @@ Sin asignar; Activa y desactiva los comandos del complemento.
 * inicio; Enfoca el primer item de la sección actual.
 * fin; anuncia la posición del item y el total de elementos en la sección actual.
 * intro; activa el item con el foco.
-* f5; Refresca la base de datos de AudioTools y AudioZ.
+* f5; Refresca la base de datos de las páginas VST

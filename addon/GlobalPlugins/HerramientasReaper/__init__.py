@@ -88,11 +88,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			if len(secciones[3]) > 5:
 				if self.switch == False:
 					self.switch = True
-					message("activado")
+					message("Atajos activados")
 					self.bindGestures({"kb:downArrow":"nextItem", "kb:upArrow":"previousItem", "kb:rightArrow":"nextSection", "kb:leftArrow":"previousSection", "kb:enter":"open", "kb:home":"firstItem", "kb:end":"positionAnnounce", "kb:f5":"reload"})
 				else:
 					self.switch = False
-					message("desactivado")
+					message("Atajos desactivados")
 					self.clearGestureBindings()
 					self.bindGestures(self.__gestures)
 		except:
@@ -179,5 +179,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	def script_reload(self, gesture):
 		Thread(target=audiotools, args=(0,), daemon= True).start()
-		Thread(target=audioz, args=(2,), daemon= True).start()
+		Thread(target=audioz, args=(1,), daemon= True).start()
+		Thread(target=plugintorrent, args=(2,), daemon= True).start()
+		Thread(target=provst, args=(3,), daemon= True).start()
 		message("Actualizando la base de datos, el proceso puede tardar algunos segundos")
