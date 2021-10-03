@@ -24,7 +24,7 @@ addon_info = {
 	# Add-on description
 	# Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 	"addon_description": _("""
-Complemento que permite acceder de forma simple a los tutoriales del sitio ReaperYOtrasYerbas.com, así como a las publicaciones de AudioTools. También permite descargar de forma directa los instaladores de las herramientas necesarias para el uso de este daw, como Osara, Sws, Reapack, la traducción a español, etcétera.
+Complemento que permite acceder de forma simple a los tutoriales del sitio ReaperYOtrasYerbas.com, descargas directas de instaladores de reaper y herramientas complementarias, así como a las publicaciones de sitios con plug-ins vst.
 """),
 	# version
 	"addon_version": "0.1",
