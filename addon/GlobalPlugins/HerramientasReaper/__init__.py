@@ -4,6 +4,7 @@
 # Utilización de la librería bs4 basada en el complemento DLEChecker de Antonio Cascales.
 
 import globalPluginHandler
+import core
 from ui import message
 import api
 from scriptHandler import script
@@ -37,8 +38,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.audioz = None
 		self.plugintorrent = None
 		self.provst = None
-		Thread(target=self.reaper, args=(10,), daemon= True).start()
-		Thread(target=self.vstContent, args=(15,), daemon= True).start()
+		core.postNvdaStartup.register(self.startScrap)
+
+	def startScrap(self):
+		Thread(target=self.reaper, daemon= True).start()
+		Thread(target=self.vstContent, daemon= True).start()
 
 	def scrap(self, site, tag, pattern= None):
 		try:
@@ -53,13 +57,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		except:
 			pass
 
-	def reaper(self, time):
-		sleep(time)
+	def reaper(self):
 		self.tutoriales = self.scrap("http://ReaperYOtrasYerbas.com/tutoriales.php", "a", {"class": "addon"})
 		self.descargas = self.scrap("http://ReaperYOtrasYerbas.com/descargas.php", "a", {"class": "addon"})
 
-	def vstContent(self, time):
-		sleep(time)
+	def vstContent(self):
 		self.audiotools = self.scrap("https://audiotools.in/", "h2")
 		self.audioz = self.scrap("https://audioz.download/", "h2")
 		self.plugintorrent = self.scrap("https://plugintorrent.com/", "h2")
@@ -176,7 +178,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		message(f"{self.x+1} de {len(self.secciones[self.y])}")
 
 	def script_reload(self, gesture):
-		Thread(target=self.vstContent, args=(1,), daemon= True).start()
+		Thread(target=self.vstContent, daemon= True).start()
 		message("Actualizando la base de datos, el proceso puede tardar algunos segundos")
 
 	def script_close(self, gesture):
