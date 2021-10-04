@@ -69,8 +69,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	@script(
 		category="HerramientasReaper",
-		description="Activa y desactiva los comandos del complemento",
-		gesture="kb:alt+NVDA+r"
+		description="Activa y desactiva los comandos del complemento"
 	)
 	def script_toggle(self, gesture):
 		try:
