@@ -1,8 +1,8 @@
 ﻿# -*- coding: utf-8 -*-
 # Copyright (C) 2021 Gerardo Kessler <ReaperYOtrasYerbas@gmail.com>
 # This file is covered by the GNU General Public License.
+# Utilización de la librería bs4 basada en el complemento DLEChecker de Antonio Cascales.
 
-import webbrowser
 import globalPluginHandler
 from ui import message
 import api
@@ -10,6 +10,7 @@ from scriptHandler import script
 from urllib import request, parse
 from time import sleep
 from threading import Thread
+import webbrowser
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
