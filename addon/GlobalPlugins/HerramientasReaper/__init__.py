@@ -7,7 +7,7 @@ import globalPluginHandler
 import core
 from ui import message
 import api
-from scriptHandler import script
+from scriptHandler import script, getLastScriptRepeatCount
 from urllib import request, parse
 from time import sleep
 from threading import Thread
@@ -28,6 +28,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def __init__(self, *args, **kwargs):
 		super(GlobalPlugin, self).__init__(*args, **kwargs)
 		self.sections = ["Tutoriales", "Descargas", "AudioTools", "AudioZ", "PluginTorrent", "pro_vst"]
+		self.index = [0, 0, 0, 0, 0 ,0]
 		self.secciones = None
 		self.x = -1
 		self.y=0
@@ -131,22 +132,28 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				message(self.secciones[self.y][self.x].string)
 
 	def script_nextSection(self, gesture):
+		self.index[self.y] = self.x
 		self.x = -1
 		self.y = self.y + 1
 		if self.y < len(self.sections):
 			message(self.sections[self.y])
+			self.x = self.index[self.y]
 		else:
 			self.y = 0
 			message(self.sections[self.y])
+			self.x = self.index[self.y]
 
 	def script_previousSection(self, gesture):
+		self.index[self.y] = self.x
 		self.x = -1
 		self.y = self.y - 1
 		if self.y >= 0:
 			message(self.sections[self.y])
+			self.x = self.index[self.y]
 		else:
 			self.y = len(self.sections) - 1
 			message(self.sections[self.y])
+			self.x = self.index[self.y]
 
 	def script_open(self, gesture):
 		item = self.secciones[self.y][self.x]
@@ -175,7 +182,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			message(self.secciones[self.y][self.x].string)
 
 	def script_positionAnnounce(self, gesture):
-		message(f"{self.x+1} de {len(self.secciones[self.y])}")
+		if getLastScriptRepeatCount() == 1:
+			if self.y == 4:
+				item = self.secciones[self.y][self.x]
+				message(f'{item.a["title"][12:]}; {self.x+1} de {len(self.secciones[self.y])}')
+			else:
+				message(f'{self.secciones[self.y][self.x].string}; {self.x+1} de {len(self.secciones[self.y])}')
+		else:
+			message(f"{self.x+1} de {len(self.secciones[self.y])}")
 
 	def script_reload(self, gesture):
 		Thread(target=self.vstContent, daemon= True).start()
