@@ -30,7 +30,8 @@ Sin asignar; Activa y desactiva los comandos del complemento.
 * flecha derecha; enfoca la sección siguiente.
 * flecha izquierda>; enfoca la sección anterior.
 * inicio; Enfoca el primer ítem de la sección actual.
-* fin; anuncia la posición del ítem y el total de elementos en la sección actual.
+* fin; verbaliza la posición del ítem y el total de elementos en la sección actual.
+* fin 2 veces rápidamente; verbaliza el ítem actual y su posición.
 * intro; activa el item con el foco.
 * Escape; Desactiva los atajos del complemento.
 * f5; Refresca la base de datos de las páginas VST
