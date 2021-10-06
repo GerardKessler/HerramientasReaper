@@ -4,7 +4,7 @@ Este complemento fue creado para acceder de una forma sencilla a los artículos 
 
 ## Instrucciones:
 
-Su uso es muy sencillo; al activar el complemento con el atajo que previamente se debe configurar desde el diálogo gestos de entrada en la categoría "HerramientasReaper", se añaden una serie de atajos de teclado con los que se puede interactuar con la interfaz invisible para acceder a las  secciones disponibles, a saber;
+Su uso es muy sencillo; al activar los comandos del complemento con el atajo que previamente  debe configurarse desde el diálogo gestos de entrada en la categoría "HerramientasReaper", se añaden una serie de atajos de teclado con los que se puede interactuar con la interfaz invisible para acceder a las  secciones disponibles, a saber;
 
 * Tutoriales
 * Descargas
@@ -18,10 +18,11 @@ En la sección tutoriales se encuentran los artículos publicados en Reaper y ot
 En descargas, los links directos a los archivos desde sus  páginas oficiales.  
 El resto de secciones pertenecen a páginas con publicaciones referidas a instrumentos virtuales, plug-ins, y herramientas similares.
 Al pulsar intro sobre cualquier ítem, debería abrirse la publicación en el navegador por defecto. Y en el caso de los instaladores, debería comenzar su descarga.  
-Para desactivar los atajos del complemento y recuperar la funcionalidad por defecto de las teclas utilizadas por este módulo, hay que presionar escape o repetir el comando configurado previamente.  
+Para desactivar los atajos del complemento y recuperar la funcionalidad por defecto de las teclas utilizadas por este módulo, hay que presionar escape o repetir el comando  previamente asignado en los gestos de entrada.  
 
 ## Atajos del complemento:
-Sin asignar; Activa y desactiva los comandos del complemento.
+
+* Sin asignar; Activa y desactiva los comandos del complemento.
 
 ### Comandos disponibles al activar el complemento:
 
