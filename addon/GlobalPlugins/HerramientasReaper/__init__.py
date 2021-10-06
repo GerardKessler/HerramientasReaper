@@ -30,7 +30,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.sections = ["Tutoriales", "Descargas", "AudioTools", "AudioZ", "PluginTorrent", "pro_vst"]
 		self.index = [0, 0, 0, 0, 0 ,0]
 		self.secciones = None
-		self.x = -1
+		self.x = 0
 		self.y=0
 		self.switch = False
 		self.tutoriales = None
@@ -95,7 +95,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 					self.switch = False
 					message("Atajos desactivados")
 					self.clearGestureBindings()
-					self.bindGestures(self.__gestures)
 		except:
 			pass
 
@@ -199,4 +198,3 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.switch = False
 		message("Atajos desactivados")
 		self.clearGestureBindings()
-		self.bindGestures(self.__gestures)
