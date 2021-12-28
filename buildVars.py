@@ -27,7 +27,7 @@ addon_info = {
 Complemento que permite acceder de forma simple a los tutoriales del sitio ReaperYOtrasYerbas.com, descargas directas de instaladores de reaper y herramientas complementarias, así como a las publicaciones de sitios con plug-ins vst.
 """),
 	# version
-	"addon_version": "0.1",
+	"addon_version": "0.2",
 	# Author(s)
 	"addon_author": "Gerardo Kessler <ReaperYOtrasYerbas@gmail.com>",
 	# URL for the add-on documentation support

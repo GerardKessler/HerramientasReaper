@@ -27,7 +27,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	def __init__(self, *args, **kwargs):
 		super(GlobalPlugin, self).__init__(*args, **kwargs)
-		self.sections = ["Tutoriales", "Descargas", "AudioTools", "AudioZ", "PluginTorrent", "pro_vst"]
+		self.sections = ["Tutoriales", "Descargas", "AudioTools", "AudioZ", "PluginTorrent"]
 		self.index = [0, 0, 0, 0, 0 ,0]
 		self.secciones = None
 		self.x = 0
@@ -38,7 +38,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.audiotools = None
 		self.audioz = None
 		self.plugintorrent = None
-		self.provst = None
 		core.postNvdaStartup.register(self.startScrap)
 
 	def startScrap(self):
@@ -66,9 +65,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.audiotools = self.scrap("https://audiotools.in/", "h2")
 		self.audioz = self.scrap("https://audioz.download/", "h2")
 		self.plugintorrent = self.scrap("https://plugintorrent.com/", "h2")
-		self.provst = self.scrap("http://pro-vst.org/", "h1")
-		self.provst.pop(0)
-		self.secciones = [self.tutoriales, self.descargas, self.audiotools, self.audioz, self.plugintorrent, self.provst]
+		self.secciones = [self.tutoriales, self.descargas, self.audiotools, self.audioz, self.plugintorrent]
 
 	@script(
 		category="HerramientasReaper",
