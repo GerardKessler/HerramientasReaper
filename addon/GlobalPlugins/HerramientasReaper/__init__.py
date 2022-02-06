@@ -27,17 +27,18 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	def __init__(self, *args, **kwargs):
 		super(GlobalPlugin, self).__init__(*args, **kwargs)
-		self.sections = ["Tutoriales", "Descargas", "AudioTools", "AudioZ", "PluginTorrent"]
+		self.sections = ["Reaper y otras yerbas", "Reaper accesible español", "Descargas", "AudioTools", "AudioZ", "LoopTorrent"]
 		self.index = [0, 0, 0, 0, 0 ,0]
 		self.secciones = None
 		self.x = 0
 		self.y=0
 		self.switch = False
 		self.tutoriales = None
+		self.rae = None
 		self.descargas = None
 		self.audiotools = None
 		self.audioz = None
-		self.plugintorrent = None
+		self.looptorrent = None
 		core.postNvdaStartup.register(self.startScrap)
 
 	def startScrap(self):
@@ -59,13 +60,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	def reaper(self):
 		self.tutoriales = self.scrap("http://gera.ar/sonido", "a", {"class": "addon"})
+		self.rae = self.scrap("http://gera.ar/sonido/files/rae.html", "a", {"class": "addon"})
 		self.descargas = self.scrap("http://gera.ar/sonido/descargas.php", "a", {"class": "addon"})
 
 	def vstContent(self):
 		self.audiotools = self.scrap("https://audiotools.in/", "h2")
 		self.audioz = self.scrap("https://audioz.download/", "h2")
-		self.plugintorrent = self.scrap("https://plugintorrent.com/", "h2")
-		self.secciones = [self.tutoriales, self.descargas, self.audiotools, self.audioz, self.plugintorrent]
+		self.looptorrent = self.scrap("https://looptorrent.net", "h3")
+		self.secciones = [self.tutoriales, self.rae, self.descargas, self.audiotools, self.audioz, self.looptorrent]
 
 	@script(
 		category="HerramientasReaper",
@@ -98,34 +100,18 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_nextItem(self, gesture):
 		self.x = self.x + 1
 		if self.x < len(self.secciones[self.y]):
-			if self.y == 4:
-				item = self.secciones[self.y][self.x]
-				message(item.a["title"][12:])
-			else:
-				message(self.secciones[self.y][self.x].string)
+			message(self.secciones[self.y][self.x].string)
 		else:
 			self.x = 0
-			if self.y == 4:
-				item = self.secciones[self.y][self.x]
-				message(item.a["title"][12:])
-			else:
-				message(self.secciones[self.y][self.x].string)
+			message(self.secciones[self.y][self.x].string)
 
 	def script_previousItem(self, gesture):
 		self.x = self.x - 1
 		if self.x >= 0:
-			if self.y == 4:
-				item = self.secciones[self.y][self.x]
-				message(item.a["title"][12:])
-			else:
-				message(self.secciones[self.y][self.x].string)
+			message(self.secciones[self.y][self.x].string)
 		else:
 			self.x = len(self.secciones[self.y]) - 1
-			if self.y == 4:
-				item = self.secciones[self.y][self.x]
-				message(item.a["title"][12:])
-			else:
-				message(self.secciones[self.y][self.x].string)
+			message(self.secciones[self.y][self.x].string)
 
 	def script_nextSection(self, gesture):
 		self.index[self.y] = self.x
@@ -154,28 +140,20 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_open(self, gesture):
 		item = self.secciones[self.y][self.x]
 		if self.y == 0:
-			webbrowser.open(f"http://ReaperYOtrasYerbas.com/{item['href']}")
-		elif self.y == 1:
+			webbrowser.open(f"http://gera.ar/sonido/{item['href']}")
+		elif self.y == 1 or self.y == 2:
 			webbrowser.open(item['href'])
-		elif self.y == 2:
+		elif self.y == 3 or self.y == 5:
 			webbrowser.open(item.a['href'])
-		elif self.y == 3:
-			webbrowser.open(item.parent['href'])
 		elif self.y == 4:
-			webbrowser.open(item.a["href"])
-		elif self.y == 5:
-			webbrowser.open(item.parent.a["href"])
+			webbrowser.open(item.parent['href'])
 		self.switch = False
 		self.clearGestureBindings()
 		self.bindGestures(self.__gestures)
 
 	def script_firstItem(self, gesture):
 		self.x = 0
-		if self.y == 4:
-			item = self.secciones[self.y][self.x]
-			message(item.a["title"][12:])
-		else:
-			message(self.secciones[self.y][self.x].string)
+		message(self.secciones[self.y][self.x].string)
 
 	def script_positionAnnounce(self, gesture):
 		if getLastScriptRepeatCount() == 1:
