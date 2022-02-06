@@ -58,8 +58,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			pass
 
 	def reaper(self):
-		self.tutoriales = self.scrap("http://ReaperYOtrasYerbas.com/tutoriales.php", "a", {"class": "addon"})
-		self.descargas = self.scrap("http://ReaperYOtrasYerbas.com/descargas.php", "a", {"class": "addon"})
+		self.tutoriales = self.scrap("http://gera.ar/sonido", "a", {"class": "addon"})
+		self.descargas = self.scrap("http://gera.ar/sonido/descargas.php", "a", {"class": "addon"})
 
 	def vstContent(self):
 		self.audiotools = self.scrap("https://audiotools.in/", "h2")
