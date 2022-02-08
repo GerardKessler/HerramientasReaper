@@ -12,6 +12,7 @@ from urllib import request, parse
 from time import sleep
 from threading import Thread
 import webbrowser
+from keyboardHandler import KeyboardInputGesture
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -173,3 +174,53 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.switch = False
 		message("Atajos desactivados")
 		self.clearGestureBindings()
+
+	@script(
+		category="Teclas personalizadas",
+		description="Pulsa la tecla aplicaciones"
+	)
+	def script_applications(self, gesture):
+		KeyboardInputGesture.fromName("applications").send()
+
+	@script(
+		category="Teclas personalizadas",
+		description="Pulsa la tecla Avance de página"
+	)
+	def script_pageUp(self, gesture):
+		KeyboardInputGesture.fromName("pageup").send()
+
+	@script(
+		category="Teclas personalizadas",
+		description="Pulsa la tecla Retroceso de página"
+	)
+	def script_pageDown(self, gesture):
+		KeyboardInputGesture.fromName("pagedown").send()
+
+	@script(
+		category="Teclas personalizadas",
+		description="Pulsa la tecla inicio"
+	)
+	def script_home(self, gesture):
+		KeyboardInputGesture.fromName("home").send()
+		
+	@script(
+		category="Teclas personalizadas",
+		description="Pulsa la tecla fin"
+	)
+	def script_end(self, gesture):
+		KeyboardInputGesture.fromName("end").send()
+
+	@script(
+		category="Teclas personalizadas",
+		description="Pulsa la tecla volúmen arriba"
+	)
+	def script_volumeUp(self, gesture):
+		KeyboardInputGesture.fromName("volumeup").send()
+
+	@script(
+		category="Teclas personalizadas",
+		description="Pulsa la tecla volúmen abajo"
+	)
+	def script_volumeDown(self, gesture):
+		KeyboardInputGesture.fromName("volumedown").send()
+
