@@ -1,20 +1,20 @@
 ﻿# Herramientas Reaper:
 
-Este complemento fue creado para acceder de una forma sencilla a los artículos del sitio <http://ReaperYOtrasYerbas.com>, así como para simplificar la descarga de los instaladores de reaper, sws, osara, y herramientas similares.  
+Este complemento fue creado para acceder de una forma sencilla a los artículos del sitio <http://gera.ar>, el canal de Reaper Accesible Español, así como para simplificar la descarga de los instaladores de reaper, sws, osara, y herramientas similares.  
 
 ## Instrucciones:
 
 Su uso es muy sencillo; al activar los comandos del complemento con el atajo que previamente  debe configurarse desde el diálogo gestos de entrada en la categoría "HerramientasReaper", se añaden una serie de atajos de teclado con los que se puede interactuar con la interfaz invisible para acceder a las  secciones disponibles, a saber;
 
-* Tutoriales
+* Reaper y otras yerbas
+* Reaper Accesible Español
 * Descargas
 * AudioTools
 * AudioZ
-* PluginTorrent
-* pro-vst
+* LoopTorrent
 
 Para moverse entre secciones hay que utilizar las flechas derecha e izquierda, y para navegar entre los Ítems de la sección enfocada, con las flechas arriba y abajo.  
-En la sección tutoriales se encuentran los artículos publicados en Reaper y otras yerbas de esa misma sección.  
+En la sección Reaper y otras yerbas se encuentran los artículos del sitio.  
 En descargas, los links directos a los archivos desde sus  páginas oficiales.  
 El resto de secciones pertenecen a páginas con publicaciones referidas a instrumentos virtuales, plug-ins, y herramientas similares.
 Al pulsar intro sobre cualquier ítem, debería abrirse la publicación en el navegador por defecto. Y en el caso de los instaladores, debería comenzar su descarga.  
