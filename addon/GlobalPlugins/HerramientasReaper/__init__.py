@@ -3,9 +3,12 @@
 # This file is covered by the GNU General Public License.
 # Utilización de la librería bs4 basada en el complemento DLEChecker de Antonio Cascales.
 
+import wx
+import gui
 import globalPluginHandler
 import core
-from ui import message
+import globalVars
+from ui import message, browseableMessage
 import api
 from scriptHandler import script, getLastScriptRepeatCount
 from urllib import request, parse
@@ -89,6 +92,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 						"kb:home":"firstItem",
 						"kb:end":"positionAnnounce",
 						"kb:f5":"reload",
+						"kb:b":"search",
 						"kb:escape":"close"}
 					)
 				else:
@@ -224,3 +228,67 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_volumeDown(self, gesture):
 		KeyboardInputGesture.fromName("volumedown").send()
 
+	def script_search(self, gesture):
+		self.switch = False
+		self.clearGestureBindings()
+		self.dlg = Search(gui.mainFrame, "Cuadro de búsqueda", "Ingrese los términos de búsqueda y pulse intro:", self.tutoriales, self.rae)
+		gui.mainFrame.prePopup()
+		self.dlg.Show()
+
+class Search(wx.Dialog):
+	def __init__(self, parent, titulo, mensaje, tutoriales, rae):
+		# Translators: Título de la ventana
+		super(Search, self).__init__(parent, -1, title=titulo)
+		self.rae = rae
+		self.tutoriales = tutoriales
+		self.results = """
+			<!doctype html>
+			<html lang="es">
+			<head>
+			<meta charset="UTF-8">
+			<title>Resultados</title>
+			</head>
+			<body>
+		"""
+		self.r = 0
+		self.Panel = wx.Panel(self)
+		label = wx.StaticText(self.Panel, wx.ID_ANY, mensaje)
+		self.search = wx.TextCtrl(self.Panel,wx.ID_ANY,style=wx.TE_PROCESS_ENTER)
+		self.buscarBTN = wx.Button(self.Panel, wx.ID_ANY, "&Buscar")
+		self.cerrarBTN = wx.Button(self.Panel, wx.ID_CANCEL, "&Cerrar")
+		self.search.Bind(wx.EVT_CONTEXT_MENU, self.onPass)
+		self.search.Bind(wx.EVT_TEXT_ENTER, self.onBuscar)
+		self.buscarBTN.Bind(wx.EVT_BUTTON, self.onBuscar)
+		self.Bind(wx.EVT_ACTIVATE, self.onSalir)
+		self.Bind(wx.EVT_BUTTON, self.onSalir, id=wx.ID_CANCEL)
+
+	def onPass(self, event):
+		pass
+
+	def onBuscar(self, event):
+		articles = self.tutoriales + self.rae
+		textSearch = self.search.GetValue()
+		for article in articles:
+			title = article.string
+			if textSearch.lower() in title.lower():
+				if "novedades.php" in article["href"]:
+					self.results += f'<a href="http://gera.ar/sonido/{article["href"]}">{article.string}</a><br>\n'
+				else:
+					self.results += f'<a href="{article["href"]}">{article.string}</a><br>'
+		if "<a href=" in self.results:
+			self.results += "</body></html>"
+			with open(f"{globalVars.appArgs.configPath}/addons/HerramientasReaper/GlobalPlugins/HerramientasReaper/resultados.html", "w", encoding="utf-8") as file:
+				file.write(self.results)
+			webbrowser.open(f"file://{globalVars.appArgs.configPath}/addons/HerramientasReaper/GlobalPlugins/HerramientasReaper/resultados.html", new=2)
+		else:
+			browseableMessage("😟\nNo se han encontrado resultados con los términos de búsqueda ingresados")
+		self.Close()
+
+	def onSalir(self, event):
+		if event.GetEventType() == 10012:
+			self.Destroy()
+			gui.mainFrame.postPopup()
+		elif event.GetActive() == False:
+			self.Destroy()
+			gui.mainFrame.postPopup()
+		event.Skip()

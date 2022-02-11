@@ -27,6 +27,7 @@ Para desactivar los atajos del complemento y recuperar la funcionalidad por defe
 
 ### Comandos disponibles al activar el complemento:
 
+* b; Activa la interfaz de búsqueda
 * flecha arriba; Enfoca el ítem anterior en la sección actual.
 * flecha abajo; enfoca el ítem siguiente en la sección actual.
 * flecha derecha; enfoca la sección siguiente.
@@ -37,6 +38,13 @@ Para desactivar los atajos del complemento y recuperar la funcionalidad por defe
 * intro; activa el item con el foco.
 * Escape; Desactiva los atajos del complemento.
 * f5; Refresca la base de datos de las páginas VST
+
+### Interfaz de búsqueda:
+
+Una vez abierto el cuadro de búsqueda, debemos tipear los términos a buscar y pulsar intro.  
+Es conveniente buscar por palabras concretas y no frases. La mayoría de las veces, una sola palabra bastará.  
+Si se encuentran resultados, se abrirá una página web con una lista de links que respondan a la búsqueda realizada. Al pulsar intro sobre alguno de ellos se abrirá la web correspondiente.  
+En el caso de no encontrar coincidencias, una ventana modal avisará sobre el resultado. Esta ventana puede cerrarse con escape.  
 
 ## Reasignación de teclas
 
