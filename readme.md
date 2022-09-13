@@ -10,13 +10,16 @@ Su uso es muy sencillo; al activar los comandos del complemento con el atajo que
 * Reaper y otras yerbas
 * Reaper Accesible Español
 * Descargas
+* Herramientas VST
 * AudioTools
 * AudioZ
 * LoopTorrent
 
 Para moverse entre secciones hay que utilizar las flechas derecha e izquierda, y para navegar entre los Ítems de la sección enfocada, con las flechas arriba y abajo.  
-En la sección Reaper y otras yerbas se encuentran los artículos del sitio.  
+En la sección Reaper y otras yerbas se encuentran los artículos del sitio gera.ar, sección sonido.  
+En ReaperAccesibleEspañol, los videos del canal.  
 En descargas, los links directos a los archivos desde sus  páginas oficiales.  
+En herramientas VST, las descargas de instrumentos virtuales y plugins.  
 El resto de secciones pertenecen a páginas con publicaciones referidas a instrumentos virtuales, plug-ins, y herramientas similares.
 Al pulsar intro sobre cualquier ítem, debería abrirse la publicación en el navegador por defecto. Y en el caso de los instaladores, debería comenzar su descarga.  
 Para desactivar los atajos del complemento y recuperar la funcionalidad por defecto de las teclas utilizadas por este módulo, hay que presionar escape o repetir el comando  previamente asignado en los gestos de entrada.  

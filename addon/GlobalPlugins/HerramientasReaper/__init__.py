@@ -31,8 +31,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	def __init__(self, *args, **kwargs):
 		super(GlobalPlugin, self).__init__(*args, **kwargs)
-		self.sections = ["Reaper y otras yerbas", "Reaper accesible español", "Descargas", "AudioTools", "AudioZ", "LoopTorrent"]
-		self.index = [0, 0, 0, 0, 0 ,0]
+		self.sections = ["Reaper y otras yerbas", "Reaper accesible español", "Descargas", "Plugins VST", "AudioTools", "AudioZ", "LoopTorrent"]
+		self.index = [0, 0, 0, 0, 0 ,0, 0]
 		self.secciones = None
 		self.x = 0
 		self.y=0
@@ -40,6 +40,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.tutoriales = None
 		self.rae = None
 		self.descargas = None
+		self.plugins = None
 		self.audiotools = None
 		self.audioz = None
 		self.looptorrent = None
@@ -66,12 +67,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.tutoriales = self.scrap("http://gera.ar/sonido", "a", {"class": "addon"})
 		self.rae = self.scrap("http://gera.ar/sonido/files/rae.html", "a", {"class": "addon"})
 		self.descargas = self.scrap("http://gera.ar/sonido/descargas.php", "a", {"class": "addon"})
+		self.plugins = self.scrap("http://gera.ar/sonido/herramientas.php", "a", {"class": "downloads"})
 
 	def vstContent(self):
 		self.audiotools = self.scrap("https://audiotools.in/", "h2")
 		self.audioz = self.scrap("https://audioz.download/", "h2")
 		self.looptorrent = self.scrap("https://looptorrent.net", "h3")
-		self.secciones = [self.tutoriales, self.rae, self.descargas, self.audiotools, self.audioz, self.looptorrent]
+		self.secciones = [self.tutoriales, self.rae, self.descargas, self.plugins, self.audiotools, self.audioz, self.looptorrent]
 
 	@script(
 		category="HerramientasReaper",
@@ -148,13 +150,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			webbrowser.open(f"http://gera.ar/sonido/{item['href']}")
 		elif self.y == 1 or self.y == 2:
 			webbrowser.open(item['href'])
-		elif self.y == 3 or self.y == 5:
+		elif self.y == 4 or self.y == 6:
 			webbrowser.open(item.a['href'])
-		elif self.y == 4:
+		elif self.y == 5:
 			webbrowser.open(item.parent['href'])
+		elif self.y == 3:
+			webbrowser.open(f"https://www.mediafire.com/file/{item['id']}/file")
 		self.switch = False
 		self.clearGestureBindings()
-		self.bindGestures(self.__gestures)
+		# self.bindGestures(self.__gestures)
 
 	def script_firstItem(self, gesture):
 		self.x = 0
