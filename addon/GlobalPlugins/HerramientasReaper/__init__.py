@@ -64,12 +64,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			pass
 
 	def reaper(self):
+		sleep(10)
 		self.tutoriales = self.scrap("http://gera.ar/sonido", "a", {"class": "addon"})
-		self.rae = self.scrap("http://gera.ar/sonido/files/rae.html", "a", {"class": "addon"})
+		self.rae = self.scrap("http://gera.ar/rae/biblia.html", "a")
+		self.rae.extend(self.scrap("http://gera.ar/rae/demo.html", "a"))
+		self.rae.extend(self.scrap("http://gera.ar/rae/plus.html", "a"))
+		self.rae.extend(self.scrap("http://gera.ar/rae/otros.html", "a"))
 		self.descargas = self.scrap("http://gera.ar/sonido/descargas.php", "a", {"class": "addon"})
 		self.plugins = self.scrap("http://gera.ar/sonido/herramientas.php", "a", {"class": "downloads"})
 
 	def vstContent(self):
+		sleep(15)
 		self.audiotools = self.scrap("https://audiotools.in/", "h2")
 		self.audioz = self.scrap("https://audioz.download/", "h2")
 		self.looptorrent = self.scrap("https://looptorrent.net", "h3")
@@ -102,7 +107,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 					message("Atajos desactivados")
 					self.clearGestureBindings()
 		except:
-			pass
+			message("Cargando. Por favor espere...")
 
 	def script_nextItem(self, gesture):
 		self.x = self.x + 1
