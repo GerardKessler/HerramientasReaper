@@ -30,8 +30,6 @@ except:
 from bs4 import BeautifulSoup
 import string
 
-nexus_toggle= False
-
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	def __init__(self, *args, **kwargs):
@@ -51,8 +49,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		core.postNvdaStartup.register(self.startScrap)
 
 	def chooseNVDAObjectOverlayClasses(self, obj, clsList):
-		if nexus_toggle:
-			clsList.insert(0, Nexus)
+		try:
+			if api.getForegroundObject().windowText == 'Nexus (x64 bridged)':
+				clsList.insert(0, Nexus)
+		except:
+			pass
 
 	def startScrap(self):
 		Thread(target=self.reaper, daemon= True).start()
@@ -132,8 +133,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				Thread(target=self.vstContent, daemon= True).start()
 				Thread(target=self.channels, daemon= True).start()
 			message('Cargando la interfaz, por favor espere...' if not self.secciones else 'Atajos activados')
-			self.bindGestures(
-				{"kb:n":"nexusActivate",
+			self.bindGestures({
 				"kb:downArrow":"nextItem",
 				"kb:upArrow":"previousItem",
 				"kb:rightArrow":"nextSection",
@@ -143,8 +143,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				"kb:end":"positionAnnounce",
 				"kb:f5":"reload",
 				"kb:b":"search",
-				"kb:escape":"close"}
-			)
+				"kb:escape":"close"
+			})
 		else:
 			self.finish(True)
 
@@ -152,22 +152,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.switch = False
 		if msg: message("Atajos desactivados")
 		self.clearGestureBindings()
-
-	def script_nexusActivate(self, gesture):
-		global nexus_toggle
-		try:
-			if api.getForegroundObject().windowText == 'Nexus (x64 bridged)':
-				if not nexus_toggle:
-					nexus_toggle= True
-					message('Módulo de  Nexus Activado')
-					self.finish()
-					kb.fromName('tab').send()
-				else:
-					message('El módulo de Nexus ya está activado')
-			else:
-				message('Enfoca la ventana puente de Nexus 4 para activar el módulo')
-		except:
-			pass
 
 	def script_nextItem(self, gesture):
 		if not self.secciones or not self.secciones[self.y]:
@@ -353,21 +337,33 @@ class Nexus():
 		self.f= 0
 		self.c= 0
 		self.p= 0
+		self.reverb= None
+		self.delay= None
+		self.preset_name= None
 		self.bindGestures({
-			"kb:escape":"close",
 			"kb:alt+downArrow":"next",
 			"kb:alt+upArrow":"previous",
 			"kb:alt+leftArrow":"preview",
 			"kb:alt+rightArrow":"active",
 			"kb:alt+home":"first",
-			"kb:alt+end":"last"
+			"kb:alt+end":"last",
+			"kb:leftArrow":"presetName"
 		})
 
-	def script_close(self, gesture):
-		global nexus_toggle
-		nexus_toggle= False
-		self.clearGestureBindings()
-		message('Módulo de Nexus desactivado')
+	def assignElements(self):
+		message('Escaneando los efectos...')
+		fg= api.getForegroundObject()
+		for child in fg.firstChild.recursiveDescendants:
+			try:
+				if self.preset_name and self.reverb and self.delay: break
+				elif child.UIAAutomationId == 'preset name.preset.header.<empty>.<empty>.<empty>.<empty>':
+					self.preset_name= child
+				elif child.UIAAutomationId == 'main reverb.<empty>.<empty>.<empty>.<empty>':
+					self.reverb= child
+				elif child.UIAAutomationId == 'main delay.<empty>.<empty>.<empty>.<empty>':
+					self.delay= child
+			except:
+				pass
 
 	def getLists(self, focus):
 		if focus.name == 'presets':
@@ -483,3 +479,9 @@ class Nexus():
 			self.f= len(self.presets)-1
 			message(self.folders[self.f].name)
 
+	def script_presetName(self, gesture):
+		if api.getFocusObject().name != 'presets':
+			gesture.send()
+			return
+		if not self.preset_name: self.assignElements()
+		message(self.preset_name.description)
