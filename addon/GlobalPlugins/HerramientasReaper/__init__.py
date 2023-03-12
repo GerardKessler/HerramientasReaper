@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 # Copyright (C) 2021 Gerardo Kessler <ReaperYOtrasYerbas@gmail.com>
 # This file is covered by the GNU General Public License.
-# Utilización de la librería bs4 basada en el complemento DLEChecker de Antonio Cascales.
+# Uso de la librería bs4 basada en el complemento DLEChecker de Antonio Cascales.
 
 import wx
 import gui
@@ -10,9 +10,12 @@ import core
 import globalVars
 from ui import message, browseableMessage
 import api
+from keyboardHandler import KeyboardInputGesture as kb
 from scriptHandler import script, getLastScriptRepeatCount
 from urllib import request, parse
+from re import findall
 from time import sleep
+import winUser
 from threading import Thread
 import webbrowser
 from keyboardHandler import KeyboardInputGesture
@@ -27,103 +30,166 @@ except:
 from bs4 import BeautifulSoup
 import string
 
+nexus_toggle= False
+
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	def __init__(self, *args, **kwargs):
 		super(GlobalPlugin, self).__init__(*args, **kwargs)
-		self.sections = ["Reaper y otras yerbas", "Reaper accesible español", "Descargas", "Plugins VST", "AudioTools", "AudioZ", "LoopTorrent"]
-		self.index = [0, 0, 0, 0, 0 ,0, 0]
-		self.secciones = None
-		self.x = 0
+		self.sections= ['Reaper y otras yerbas', 'Descargas', 'AudioTools', 'AudioZ', 'Loop Torrent', 'Plugin Crack', 'Reaper en español (YouTube)', 'Reaper en español, tutoriales y utilidades (YouTube)']
+		self.index= [0, 0, 0, 0, 0, 0, 0, 0]
+		self.secciones= None
+		self.x= 0
 		self.y=0
-		self.switch = False
-		self.tutoriales = None
-		self.rae = None
-		self.descargas = None
-		self.plugins = None
-		self.audiotools = None
-		self.audioz = None
-		self.looptorrent = None
+		self.switch= False
+		self.tutoriales= None
+		self.descargas= None
+		self.audiotools= None
+		self.audioz= None
+		self.looptorrent= None
+		self.plugincrack= None
 		core.postNvdaStartup.register(self.startScrap)
+
+	def chooseNVDAObjectOverlayClasses(self, obj, clsList):
+		if nexus_toggle:
+			clsList.insert(0, Nexus)
 
 	def startScrap(self):
 		Thread(target=self.reaper, daemon= True).start()
 		Thread(target=self.vstContent, daemon= True).start()
+		Thread(target=self.channels, daemon= True).start()
 
-	def scrap(self, site, tag, pattern= None):
+	def getContent(self, url):
 		try:
-			contenido = request.Request(site, data=None, headers={"User-Agent": "Mozilla/5.0"})
-			html = request.urlopen(contenido)
-			datos = html.read().decode('utf-8')
-			bs = BeautifulSoup(datos, 'html.parser')
-			if pattern == None:
-				return bs.find_all(tag)
-			else:
-				return bs.find_all(tag, pattern)
+			contenido= request.Request(url, data=None, headers={'User-Agent': 'Mozilla/5.0'})
+			html= request.urlopen(contenido)
+			data= html.read().decode('utf-8')
+			return data
+		except:
+			return None
+
+	def scrap(self, url, tag, pattern= None):
+		datos= self.getContent(url)
+		bs= BeautifulSoup(datos, 'html.parser')
+		if pattern == None:
+			return bs.find_all(tag)
+		else:
+			return bs.find_all(tag, pattern)
+
+	def reaper(self):
+		sonido= self.scrap("http://gera.ar/sonido", "a", {"class": "addon"})
+		self.tutoriales= [(item.text, f'http://gera.ar/sonido/{item["href"]}') for item in sonido]
+		descargas= self.scrap("http://gera.ar/sonido/descargas.php", "a", {"class": "addon"})
+		self.descargas= [(item.text, item['href']) for item in descargas]
+
+	def vstContent(self):
+		sleep(3)
+		try:
+			audiotools= self.scrap('https://audiotools.in/', 'h2')
+			self.audiotools= [(item.text, item.a['href']) for item in audiotools]
+			sleep(2)
+		except:
+			pass
+		try:
+			audioz= self.scrap('https://audioz.download/', 'h2')
+			self.audioz= [(item.text, item.parent['href']) for item in audioz]
+			sleep(2)
+		except:
+			pass
+		try:
+			looptorrent= self.scrap('https://looptorrent.net', 'h3')
+			self.looptorrent= [(item.text, item.a['href']) for item in looptorrent]
+			sleep(2)
+		except:
+			pass
+		try:
+			plugincrack= self.scrap('https://plugincrack.com/vst/', 'h2')
+			self.plugincrack= [(item.text, item.a['href']) for item in plugincrack]
 		except:
 			pass
 
-	def reaper(self):
-		sleep(10)
-		self.tutoriales = self.scrap("http://gera.ar/sonido", "a", {"class": "addon"})
-		self.rae = self.scrap("http://gera.ar/rae/biblia.html", "a")
-		self.rae.extend(self.scrap("http://gera.ar/rae/demo.html", "a"))
-		self.rae.extend(self.scrap("http://gera.ar/rae/plus.html", "a"))
-		self.rae.extend(self.scrap("http://gera.ar/rae/otros.html", "a"))
-		self.descargas = self.scrap("http://gera.ar/sonido/descargas.php", "a", {"class": "addon"})
-		self.plugins = self.scrap("http://gera.ar/sonido/herramientas.php", "a", {"class": "downloads"})
-
-	def vstContent(self):
-		sleep(15)
-		self.audiotools = self.scrap("https://audiotools.in/", "h2")
-		self.audioz = self.scrap("https://audioz.download/", "h2")
-		self.looptorrent = self.scrap("https://looptorrent.net", "h3")
-		self.secciones = [self.tutoriales, self.rae, self.descargas, self.plugins, self.audiotools, self.audioz, self.looptorrent]
+	def channels(self):
+		sleep(11)
+		regex= r'"accessibilityData":\{"label":"([^"]*)"\}\}\}\,"descriptionSnippet":\{"runs":\[\{"text":"([^"]+)"\}\]\}\,"publishedTimeText":\{"simpleText":"[^"]*"\}\,"lengthText":\{"accessibility":\{"accessibilityData":\{"label":"[^"]*"\}\}\,"simpleText":"[^"]*"\}\,"viewCountText":\{"simpleText":"[^"]*"\}\,"navigationEndpoint":\{"clickTrackingParams":"[^"]*","commandMetadata":\{"webCommandMetadata":\{"url":"(\/watch\?v\=[^"]+)"'
+		reaper_es= self.getContent('https://www.youtube.com/@reaperenespanol/videos')
+		re_data= findall(regex, reaper_es)
+		reaper_es_list= [(item[0], f'https://youtube.com{item[2]}', item[1]) for item in re_data]
+		sleep(4)
+		javier_robledo= self.getContent('https://www.youtube.com/@Reaper_con_Javier_Robledo/videos')
+		jr_data= findall(regex, javier_robledo)
+		javier_robledo_list= [(item[0], f'https://youtube.com{item[2]}', item[1]) for item in jr_data]
+		self.secciones= [self.tutoriales, self.descargas, self.audiotools, self.audioz, self.looptorrent, self.plugincrack, reaper_es_list, javier_robledo_list]
 
 	@script(
 		category="HerramientasReaper",
 		description="Activa y desactiva los comandos del complemento"
 	)
 	def script_toggle(self, gesture):
+		if self.switch == False:
+			self.switch = True
+			if not self.secciones:
+				Thread(target=self.reaper, daemon= True).start()
+				Thread(target=self.vstContent, daemon= True).start()
+				Thread(target=self.channels, daemon= True).start()
+			message('Cargando la interfaz, por favor espere...' if not self.secciones else 'Atajos activados')
+			self.bindGestures(
+				{"kb:n":"nexusActivate",
+				"kb:downArrow":"nextItem",
+				"kb:upArrow":"previousItem",
+				"kb:rightArrow":"nextSection",
+				"kb:leftArrow":"previousSection",
+				"kb:enter":"open",
+				"kb:home":"firstItem",
+				"kb:end":"positionAnnounce",
+				"kb:f5":"reload",
+				"kb:b":"search",
+				"kb:escape":"close"}
+			)
+		else:
+			self.finish(True)
+
+	def finish(self, msg= False):
+		self.switch = False
+		if msg: message("Atajos desactivados")
+		self.clearGestureBindings()
+
+	def script_nexusActivate(self, gesture):
+		global nexus_toggle
 		try:
-			if len(self.secciones[2]) > 5:
-				if self.switch == False:
-					self.switch = True
-					message("Atajos activados")
-					self.bindGestures(
-						{"kb:downArrow":"nextItem",
-						"kb:upArrow":"previousItem",
-						"kb:rightArrow":"nextSection",
-						"kb:leftArrow":"previousSection",
-						"kb:enter":"open",
-						"kb:home":"firstItem",
-						"kb:end":"positionAnnounce",
-						"kb:f5":"reload",
-						"kb:b":"search",
-						"kb:escape":"close"}
-					)
+			if api.getForegroundObject().windowText == 'Nexus (x64 bridged)':
+				if not nexus_toggle:
+					nexus_toggle= True
+					message('Módulo de  Nexus Activado')
+					self.finish()
+					kb.fromName('tab').send()
 				else:
-					self.switch = False
-					message("Atajos desactivados")
-					self.clearGestureBindings()
+					message('El módulo de Nexus ya está activado')
+			else:
+				message('Enfoca la ventana puente de Nexus 4 para activar el módulo')
 		except:
-			message("Cargando. Por favor espere...")
+			pass
 
 	def script_nextItem(self, gesture):
+		if not self.secciones or not self.secciones[self.y]:
+			message('Sin datos')
+			return
 		self.x = self.x + 1
 		if self.x < len(self.secciones[self.y]):
-			message(self.secciones[self.y][self.x].string)
+			message(self.secciones[self.y][self.x][0])
 		else:
 			self.x = 0
-			message(self.secciones[self.y][self.x].string)
+			message(self.secciones[self.y][self.x][0])
 
 	def script_previousItem(self, gesture):
+		if not self.secciones or not self.secciones[self.y]:
+			message('Sin datos')
+			return
 		self.x = self.x - 1
 		if self.x >= 0:
-			message(self.secciones[self.y][self.x].string)
+			message(self.secciones[self.y][self.x][0])
 		else:
 			self.x = len(self.secciones[self.y]) - 1
-			message(self.secciones[self.y][self.x].string)
+			message(self.secciones[self.y][self.x][0])
 
 	def script_nextSection(self, gesture):
 		self.index[self.y] = self.x
@@ -150,43 +216,26 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			self.x = self.index[self.y]
 
 	def script_open(self, gesture):
-		item = self.secciones[self.y][self.x]
-		if self.y == 0:
-			webbrowser.open(f"http://gera.ar/sonido/{item['href']}")
-		elif self.y == 1 or self.y == 2:
-			webbrowser.open(item['href'])
-		elif self.y == 4 or self.y == 6:
-			webbrowser.open(item.a['href'])
-		elif self.y == 5:
-			webbrowser.open(item.parent['href'])
-		elif self.y == 3:
-			webbrowser.open(f"https://www.mediafire.com/file/{item['id']}/file")
-		self.switch = False
-		self.clearGestureBindings()
-		# self.bindGestures(self.__gestures)
+		webbrowser.open_new_tab(self.secciones[self.y][self.x][1])
+		self.finish()
 
 	def script_firstItem(self, gesture):
 		self.x = 0
-		message(self.secciones[self.y][self.x].string)
+		message(self.secciones[self.y][self.x][0])
 
 	def script_positionAnnounce(self, gesture):
 		if getLastScriptRepeatCount() == 1:
-			if self.y == 4:
-				item = self.secciones[self.y][self.x]
-				message(f'{item.a["title"][12:]}; {self.x+1} de {len(self.secciones[self.y])}')
-			else:
-				message(f'{self.secciones[self.y][self.x].string}; {self.x+1} de {len(self.secciones[self.y])}')
+			message(self.secciones[self.y][self.x][0])
 		else:
 			message(f"{self.x+1} de {len(self.secciones[self.y])}")
 
 	def script_reload(self, gesture):
 		Thread(target=self.vstContent, daemon= True).start()
-		message("Actualizando la base de datos, el proceso puede tardar algunos segundos")
+		Thread(target=self.channels, daemon= True).start()
+		message("Actualizando los contenidos, el proceso puede tardar algunos segundos")
 
 	def script_close(self, gesture):
-		self.switch = False
-		message("Atajos desactivados")
-		self.clearGestureBindings()
+		self.finish(True)
 
 	@script(
 		category="Teclas personalizadas",
@@ -238,19 +287,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		KeyboardInputGesture.fromName("volumedown").send()
 
 	def script_search(self, gesture):
-		self.switch = False
-		self.clearGestureBindings()
-		self.dlg = Search(gui.mainFrame, "Cuadro de búsqueda", "Ingrese los términos de búsqueda y pulse intro:", self.tutoriales, self.rae)
+		self.finish()
+		self.dlg = Search(gui.mainFrame, "Cuadro de búsqueda", "Ingrese los términos de búsqueda y pulse intro:", self.secciones)
 		gui.mainFrame.prePopup()
 		self.dlg.Show()
 
 class Search(wx.Dialog):
-	def __init__(self, parent, titulo, mensaje, tutoriales, rae):
+	def __init__(self, parent, titulo, mensaje, secciones):
 		# Translators: Título de la ventana
 		super(Search, self).__init__(parent, -1, title=titulo)
-		self.rae = rae
-		self.tutoriales = tutoriales
-		self.results = """
+		self.secciones= secciones
+		self.results= """
 			<!doctype html>
 			<html lang="es">
 			<head>
@@ -259,9 +306,9 @@ class Search(wx.Dialog):
 			</head>
 			<body>
 		"""
-		self.r = 0
-		self.Panel = wx.Panel(self)
-		label = wx.StaticText(self.Panel, wx.ID_ANY, mensaje)
+		self.r= 0
+		self.Panel= wx.Panel(self)
+		wx.StaticText(self.Panel, wx.ID_ANY, mensaje)
 		self.search = wx.TextCtrl(self.Panel,wx.ID_ANY,style=wx.TE_PROCESS_ENTER)
 		self.buscarBTN = wx.Button(self.Panel, wx.ID_ANY, "&Buscar")
 		self.cerrarBTN = wx.Button(self.Panel, wx.ID_CANCEL, "&Cerrar")
@@ -275,15 +322,11 @@ class Search(wx.Dialog):
 		pass
 
 	def onBuscar(self, event):
-		articles = self.tutoriales + self.rae
 		textSearch = self.search.GetValue()
-		for article in articles:
-			title = article.string
-			if textSearch.lower() in title.lower():
-				if "novedades.php" in article["href"]:
-					self.results += f'<a href="http://gera.ar/sonido/{article["href"]}">{article.string}</a><br>\n'
-				else:
-					self.results += f'<a href="{article["href"]}">{article.string}</a><br>'
+		for section in self.secciones:
+			# for item in section:
+				if textSearch.lower() in item[0].lower():
+					self.results += f'<a href="{item[1]}">{item[0]}</a><br>\n'
 		if "<a href=" in self.results:
 			self.results += "</body></html>"
 			with open(f"{globalVars.appArgs.configPath}/addons/HerramientasReaper/GlobalPlugins/HerramientasReaper/resultados.html", "w", encoding="utf-8") as file:
@@ -301,3 +344,142 @@ class Search(wx.Dialog):
 			self.Destroy()
 			gui.mainFrame.postPopup()
 		event.Skip()
+
+class Nexus():
+	def initOverlayClass(self):
+		self.folders= None
+		self.categories= None
+		self.presets= None
+		self.f= 0
+		self.c= 0
+		self.p= 0
+		self.bindGestures({
+			"kb:escape":"close",
+			"kb:alt+downArrow":"next",
+			"kb:alt+upArrow":"previous",
+			"kb:alt+leftArrow":"preview",
+			"kb:alt+rightArrow":"active",
+			"kb:alt+home":"first",
+			"kb:alt+end":"last"
+		})
+
+	def script_close(self, gesture):
+		global nexus_toggle
+		nexus_toggle= False
+		self.clearGestureBindings()
+		message('Módulo de Nexus desactivado')
+
+	def getLists(self, focus):
+		if focus.name == 'presets':
+			self.presets= [preset for preset in focus.children if not preset.name in ('', '-- Uncategorized')]
+		elif focus.name == 'categories':
+			self.categories= [category for category in focus.children if category.name != '']
+		elif focus.name == 'folders':
+			self.folders= [folder for folder in focus.children if folder.name != '']
+
+	def script_next(self, gesture):
+		try:
+			focus= api.getFocusObject()
+			if focus.name == 'presets':
+				if not self.presets: self.getLists(focus)
+				self.p = self.p+1
+				try:
+					message(self.presets[self.p].name)
+				except:
+					self.p= 0
+					message(self.presets[self.p].name)
+			elif focus.name == 'categories':
+				if not self.categories: self.getLists(focus)
+				self.c = self.c+1
+				try:
+					message(self.categories[self.c].name)
+				except:
+					self.c= 0
+					message(self.categories[self.c].name)
+			elif focus.name == 'folders':
+				if not self.folders: self.getLists(focus)
+				self.f = self.f+1
+				try:
+					message(self.folders[self.f].name)
+				except:
+					self.f= 0
+					message(self.folders[self.f].name)
+		except:
+			pass
+
+	def script_previous(self, gesture):
+		try:
+			focus= api.getFocusObject()
+			if focus.name == 'presets':
+				if not self.presets: self.getLists(focus)
+				self.p = self.p-1
+				try:
+					message(self.presets[self.p].name)
+				except:
+					self.p= len(self.presets)-1
+					message(self.presets[self.p].name)
+			elif focus.name == 'categories':
+				if not self.categories: self.getLists(focus)
+				self.c = self.c-1
+				try:
+					message(self.categories[self.c].name)
+				except:
+					self.c= len(self.categories)-1
+					message(self.categories[self.c].name)
+			elif focus.name == 'folders':
+				if not self.folders: self.getLists(focus)
+				self.f = self.f-1
+				try:
+					message(self.folders[self.f].name)
+				except:
+					self.f= len(self.folders)-1
+					message(self.folders[self.f].name)
+		except:
+			pass
+
+	def script_preview(self, gesture):
+		focus= api.getFocusObject()
+		if focus.name == 'presets':
+			obj= self.presets[self.p]
+		api.moveMouseToNVDAObject(obj)
+		winUser.mouse_event(winUser.MOUSEEVENTF_LEFTDOWN,0,0,None,None)
+		winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,0,None,None)
+
+	def script_active(self, gesture):
+		focus= api.getFocusObject()
+		if focus.name == 'presets':
+			obj= self.presets[self.p]
+		elif focus.name == 'categories':
+			obj= self.categories[self.c]
+		elif focus.name == 'folders':
+			obj= self.folders[self.f]
+		api.moveMouseToNVDAObject(obj)
+		winUser.mouse_event(winUser.MOUSEEVENTF_LEFTDOWN,0,0,None,None)
+		winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,0,None,None)
+		winUser.mouse_event(winUser.MOUSEEVENTF_LEFTDOWN,0,0,None,None)
+		winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,0,None,None)
+
+	def script_first(self, gesture):
+		focus= api.getFocusObject()
+		if focus.name == 'presets':
+			self.p= 0
+			message(self.presets[self.p].name)
+		elif focus.name == 'categories':
+			self.c= 0
+			message(self.categories[self.c].name)
+		elif focus.name == 'folders':
+			self.f= 0
+			message(self.folders[self.f].name)
+
+	def script_last(self, gesture):
+		focus= api.getFocusObject()
+		if focus.name == 'presets':
+			self.p= len(self.presets)-1
+			message(self.presets[self.p].name)
+		elif focus.name == 'categories':
+			self.c= len(self.categories)-1
+			message(self.categories[self.c].name)
+		elif focus.name == 'folders':
+			self.f= len(self.presets)-1
+			message(self.folders[self.f].name)
+
