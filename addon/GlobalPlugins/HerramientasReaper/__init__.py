@@ -10,6 +10,7 @@ import core
 import globalVars
 from ui import message, browseableMessage
 import api
+import controlTypes
 from keyboardHandler import KeyboardInputGesture as kb
 from scriptHandler import script, getLastScriptRepeatCount
 from urllib import request, parse
@@ -18,6 +19,7 @@ from time import sleep
 import winUser
 from threading import Thread
 import webbrowser
+from nvwave import playWaveFile
 from keyboardHandler import KeyboardInputGesture
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -29,6 +31,8 @@ except:
 
 from bs4 import BeautifulSoup
 import string
+
+SOUNDS= os.path.join(os.path.dirname(__file__), 'sounds')
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
@@ -340,6 +344,7 @@ class Nexus():
 		self.reverb= None
 		self.delay= None
 		self.preset_name= None
+		self.preset_name_temp= None
 		self.bindGestures({
 			"kb:alt+downArrow":"next",
 			"kb:alt+upArrow":"previous",
@@ -347,7 +352,11 @@ class Nexus():
 			"kb:alt+rightArrow":"active",
 			"kb:alt+home":"first",
 			"kb:alt+end":"last",
-			"kb:leftArrow":"presetName"
+			"kb:leftArrow":"presetName",
+			"kb:rightArrow":"presetActive",
+			"kb:alt+r":"reverbToggle",
+			"kb:control+r":"reverbType",
+			"kb:alt+d":"delayToggle"
 		})
 
 	def assignElements(self):
@@ -367,7 +376,7 @@ class Nexus():
 
 	def getLists(self, focus):
 		if focus.name == 'presets':
-			self.presets= [preset for preset in focus.children if not preset.name in ('', '-- Uncategorized')]
+			self.presets= [preset for preset in focus.children if not preset.name in ('-- Uncategorized', '')]
 		elif focus.name == 'categories':
 			self.categories= [category for category in focus.children if category.name != '']
 		elif focus.name == 'folders':
@@ -437,9 +446,13 @@ class Nexus():
 		focus= api.getFocusObject()
 		if focus.name == 'presets':
 			obj= self.presets[self.p]
-		api.moveMouseToNVDAObject(obj)
-		winUser.mouse_event(winUser.MOUSEEVENTF_LEFTDOWN,0,0,None,None)
-		winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,0,None,None)
+			obj.setFocus()
+			api.moveMouseToNVDAObject(obj)
+			winUser.mouse_event(winUser.MOUSEEVENTF_LEFTDOWN,0,0,None,None)
+			winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,0,None,None)
+			focus.setFocus()
+		else:
+			gesture.send()
 
 	def script_active(self, gesture):
 		focus= api.getFocusObject()
@@ -449,39 +462,98 @@ class Nexus():
 			obj= self.categories[self.c]
 		elif focus.name == 'folders':
 			obj= self.folders[self.f]
+		obj.setFocus()
 		api.moveMouseToNVDAObject(obj)
 		winUser.mouse_event(winUser.MOUSEEVENTF_LEFTDOWN,0,0,None,None)
 		winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,0,None,None)
 		winUser.mouse_event(winUser.MOUSEEVENTF_LEFTDOWN,0,0,None,None)
 		winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,0,None,None)
+		focus.setFocus()
+		playWaveFile(os.path.join(SOUNDS, 'click.wav'))
 
 	def script_first(self, gesture):
 		focus= api.getFocusObject()
-		if focus.name == 'presets':
-			self.p= 0
-			message(self.presets[self.p].name)
-		elif focus.name == 'categories':
-			self.c= 0
-			message(self.categories[self.c].name)
-		elif focus.name == 'folders':
-			self.f= 0
-			message(self.folders[self.f].name)
+		try:
+			if focus.name == 'presets':
+				self.p= 0
+				message(self.presets[self.p].name)
+			elif focus.name == 'categories':
+				self.c= 0
+				message(self.categories[self.c].name)
+			elif focus.name == 'folders':
+				self.f= 0
+				message(self.folders[self.f].name)
+		except:
+			pass
 
 	def script_last(self, gesture):
 		focus= api.getFocusObject()
-		if focus.name == 'presets':
-			self.p= len(self.presets)-1
-			message(self.presets[self.p].name)
-		elif focus.name == 'categories':
-			self.c= len(self.categories)-1
-			message(self.categories[self.c].name)
-		elif focus.name == 'folders':
-			self.f= len(self.presets)-1
-			message(self.folders[self.f].name)
+		try:
+			if focus.name == 'presets':
+				self.p= len(self.presets)-1
+				message(self.presets[self.p].name)
+			elif focus.name == 'categories':
+				self.c= len(self.categories)-1
+				message(self.categories[self.c].name)
+			elif focus.name == 'folders':
+				self.f= len(self.presets)-1
+				message(self.folders[self.f].name)
+		except:
+			pass
 
-	def script_presetName(self, gesture):
+	def verifyElements(self, gesture):
 		if api.getFocusObject().name != 'presets':
 			gesture.send()
 			return
-		if not self.preset_name: self.assignElements()
-		message(self.preset_name.description)
+		if not self.preset_name:
+			self.assignElements()
+
+	def script_presetActive(self, gesture):
+		gesture.send()
+		playWaveFile(os.path.join(SOUNDS, 'click.wav'))
+		Thread(target=self.assignPreset, daemon= True).start()
+
+	def assignPreset(self):
+		if not self.presets or not self.preset_name:
+			self.getLists(api.getFocusObject())
+			self.assignElements()
+		preset_name= self.preset_name.description.split('\n')[1]
+		for i in range(30):
+			sleep(0.1)
+			if preset_name != self.preset_name.description.split('\n')[1]:
+				self.p= next((i for i, obj in enumerate(self.presets) if self.preset_name.description.split('\n')[1] in obj.name), None)
+				message(self.preset_name.description.split('\n')[1])
+				break
+
+	def script_presetName(self, gesture):
+		self.verifyElements(gesture)
+		if self.preset_name:
+			message(self.preset_name.description.split('\n')[1])
+
+	def script_reverbToggle(self, gesture):
+		self.verifyElements(gesture)
+		focus= api.getFocusObject()
+		if self.reverb:
+			self.reverb.children[0].doAction()
+			focus.setFocus()
+			if controlTypes.State.PRESSED in self.reverb.children[0].states:
+				message('Reverb activada')
+			else:
+				message('Reverb desactivada')
+
+	def script_reverbType(self, gesture):
+		self.verifyElements(gesture)
+		focus= api.getFocusObject()
+		if self.reverb:
+			self.reverb.children[2].doAction()
+
+	def script_delayToggle(self, gesture):
+		self.verifyElements(gesture)
+		focus= api.getFocusObject()
+		if self.delay:
+			self.delay.children[0].doAction()
+			focus.setFocus()
+			if controlTypes.State.PRESSED in self.delay.children[0].states:
+				message('Delay activado')
+			else:
+				message('Delay desactivado')
